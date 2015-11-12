@@ -322,6 +322,10 @@ https://github.com/osiegmar/cloudwatch-mon-scripts-python
                         const='additional',
                         nargs='?',
                         help='Adds aggregated metrics for Auto Scaling group.')
+    parser.add_argument('--auto-scaling-group',
+                        metavar='GROUP',
+                        action='append',
+                        help='Selects the Auto Scaling group name to report for')
     parser.add_argument('--verify',
                         action='store_true',
                         help='Checks configuration and prepares a remote call.')
@@ -488,10 +492,12 @@ def main():
         instance_id = metadata['instance-id']
         autoscaling_group_name = None
         if args.auto_scaling:
-            autoscaling_group_name = get_autoscaling_group_name(region,
-                                                                instance_id,
-                                                                args.verbose)
-
+            if args.auto_scaling_group:
+                autoscaling_group_name = args.auto_scaling_group
+            else:
+                autoscaling_group_name = get_autoscaling_group_name(region,
+                                                                    instance_id,
+                                                                    args.verbose)
             if args.verbose:
                 print 'Autoscaling group: ' + autoscaling_group_name
 
