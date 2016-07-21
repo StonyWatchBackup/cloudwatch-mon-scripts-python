@@ -332,6 +332,9 @@ https://github.com/osiegmar/cloudwatch-mon-scripts-python
     parser.add_argument('--version',
                         action='store_true',
                         help='Displays the version number and exits.')
+    parser.add_argument('--persistent',
+                        action='store_true',
+                        help='Keep this script running, putting monitoring data every minute.')
 
     return parser
 
@@ -458,20 +461,7 @@ def validate_args(args):
     return report_disk_data, report_mem_data, report_loadavg_data
 
 
-def main():
-    parser = config_parser()
-
-    # exit with help, because no args specified
-    if len(sys.argv) == 1:
-        parser.print_help()
-        return 1
-
-    args = parser.parse_args()
-
-    if args.version:
-        print CLIENT_NAME + ' version ' + VERSION
-        return 0
-
+def main_runner(args):
     try:
         report_disk_data, report_mem_data, report_loadavg_data = validate_args(args)
 
@@ -536,6 +526,32 @@ def main():
         return 1
 
     return 0
+
+
+def main():
+    parser = config_parser()
+
+    # exit with help, because no args specified
+    if len(sys.argv) == 1:
+        parser.print_help()
+        return 1
+
+    args = parser.parse_args()
+
+    if args.version:
+        print CLIENT_NAME + ' version ' + VERSION
+        return 0
+
+    if args.persistent:
+        print 'Persistent flag requested'
+        start_time = time.time()
+        while True:
+            print 'Triggered metrics report'
+            main_runner(args)
+            time.sleep(60.0 - ((time.time() - start_time) % 60.0))
+    else:
+        print 'Triggered single metrics report'
+        return main_runner(args)
 
 
 if __name__ == '__main__':
