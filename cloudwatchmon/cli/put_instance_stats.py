@@ -145,7 +145,7 @@ class Metrics:
         if mount:
             common_dims['MountPath'] = mount
         if file_system:
-            common_dims['Filesystem'] = file_system
+            common_dims['Filesystem'] = '-'
 
         dims = []
 
