@@ -4,15 +4,52 @@ cloudwatch-mon-scripts-python
 Linux monitoring scripts for CloudWatch.
 
 
-Requirements
-------------
+
+Docker
+------
+
+This software is packaged as a [Docker image](https://hub.docker.com/r/pebbletech/cloudwatch-mon-scripts/) for deployment.
+
+Docker Requirements
+-------------------
+  * Docker 1.5+
+
+
+Docker Installation
+-------------------
+1. Create systemd unit:
+
+    ### docker-cloudwatch.service
+    ```
+    [Unit]
+    Description=someapp cloudwatch stats
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill cloudwatch-mon-scripts
+    ExecStartPre=-/usr/bin/docker rm cloudwatch-mon-scripts
+    ExecStartPre=-/usr/bin/docker pull pebbletech/cloudwatch-mon-scripts
+    ExecStart=/bin/sh -c '/usr/bin/docker run -e ASG=$(source /etc/profile; fleetctl list-machines -l | grep $(cat /etc/machine-id) | sed 's/.*service=//g') pebbletech/cloudwatch-mon-scripts'
+    ```
+
+2. Start systemd unit
+
+    ```
+    systemctl start $PWD/docker-cloudwatch.service
+    ```
+
+
+Source Requirements
+-------------------
 
 - Python >= 2.6
 - Boto >= 2.33.0
 
 
-Installation
-------------
+Source Installation
+-------------------
 
 Optionally create a virtual environment and activate it. Then just run
 `pip install cloudwatchmon`. Install the scripts in /usr/local/bin folder.
